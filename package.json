@@ -2,7 +2,7 @@
   "name": "busybar-plant-pour",
   "private": true,
   "version": "0.1.0",
-  "description": "Plant Pour",
+  "description": "Log measured watering by plant and see what remains of each weekly volume target.",
   "author": "ncoooooper",
   "type": "module",
   "scripts": {

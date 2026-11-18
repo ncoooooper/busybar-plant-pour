@@ -1,66 +1,11 @@
-import { device } from "@shared/device";
-import { column, render, type Node } from "@busy-app/busy-lib";
-import manifest from "./appmeta/manifest.json";
-
-/** The name the app draws under; the device clears elements by this id. */
-const APP = manifest.id;
-
-/** How often the screen is redrawn. */
-const TICK_MS = 1000;
-
-const WHITE = "#FFFFFFFF";
-const SUBTLE_WHITE = "#FFFFFF80";
-
-/**
- * The frame drawn on every tick. The screen is 72×16, so two short lines are about all that fits.
- */
-function frame(ticks: number): Node {
-  return column({ justify: "center", align: "center" }, [
-    { type: "text", id: "title", text: "Hello", font: "bold", color: WHITE },
-    {
-      type: "text",
-      id: "ticks",
-      text: String(ticks),
-      font: "small",
-      color: SUBTLE_WHITE,
-    },
-  ]);
-}
-
-/** Sends one frame to the device. */
-async function draw(ticks: number): Promise<void> {
-  const elements = render(frame(ticks));
-  await device.DisplayDraw({ application_name: APP, priority: 50, elements });
-}
-
-/**
- * Entry point, called at the end of the file: the device runs this script from top to bottom and starts nothing by itself.
- */
-function main(): void {
-  let ticks = 0;
-  let stopped = false;
-
-  const report = (err: unknown) =>
-    console.error(`${APP}: ${err instanceof Error ? err.message : String(err)}`);
-
-  void draw(ticks).catch(report);
-
-  // Tick errors are reported, not thrown: one failed request must not stop the loop.
-  const timer = setInterval(() => {
-    ticks += 1;
-    void draw(ticks).catch(report);
-  }, TICK_MS);
-
-  // Back leaves the app. Once the timer is cleared and the handler detached, nothing keeps it alive and the device takes the screen back.
-  const unbind = listen("input", (event) => {
-    if (stopped || event.key !== "back" || event.action !== "short") return;
-
-    stopped = true;
-    clearInterval(timer);
-
-    // Not detached from inside the handler itself: with nothing else left the unbind stops the app on the spot, while this handler is still running.
-    setTimeout(unbind, 0);
-  });
-}
-
-main();
+import {desk} from "@shared/desk";
+import {wrap} from "@shared/surface";
+let plants=[{name:"Basil",target:400},{name:"Mint",target:350},{name:"Ivy",target:200}];type S={at:number;edit:boolean;amount:number;week:string;totals:Record<string,number>;last:{name:string;ml:number}|null};
+function week(now:number){const d=new Date(now);d.setDate(d.getDate()-(d.getDay()+6)%7);return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();}
+function rollover(s:S,now:number){const w=week(now);if(s.week!==w){s.totals={};s.last=null;s.week=w;}}
+desk<S>({name:"Plant Pour",accent:"#A9DA64",motion:{"motif":"pour","color":"#A9DA64","shine":"#EFFDB9"},initial:()=>({at:0,edit:false,amount:120,week:"",totals:{},last:null}),
+ configure:(s,v)=>{const p=String(v.plants||"").split(",").map(x=>x.trim().split("|")).map(([name,n])=>({name,target:Number(n)})).filter(x=>x.name&&x.target>0);if(p.length)plants=p;s.at=wrap(s.at,plants.length);},
+ render:(s,now)=>{const p=plants[s.at],total=s.week===week(now)?s.totals[p.name]||0:0,left=Math.max(0,p.target-total);return {title:p.name,value:s.edit?s.amount+" mL":left+" mL",progress:total/p.target,lines:[p.name+(s.edit?" / POUR SIZE":" / LEFT THIS WEEK"),"Logged "+total+" of "+p.target+" mL","Next pour "+s.amount+" mL","Week of "+week(now),"Click: edit / Start: log","Hold OK: undo last pour"]};},
+ action:(s,k,now)=>{rollover(s,now);if(k==="ok")s.edit=!s.edit;if(k==="up"||k==="down"){const n=k==="up"?1:-1;if(s.edit)s.amount=Math.min(5000,Math.max(10,s.amount+n*10));else s.at=wrap(s.at+n,plants.length);}
+ if(k==="start"){const name=plants[s.at].name;s.totals[name]=(s.totals[name]||0)+s.amount;s.last={name,ml:s.amount};s.edit=false;}
+ if(k==="hold-ok"&&s.last){s.totals[s.last.name]=Math.max(0,(s.totals[s.last.name]||0)-s.last.ml);s.last=null;}}});

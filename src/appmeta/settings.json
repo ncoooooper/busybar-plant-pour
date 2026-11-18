@@ -1,0 +1,12 @@
+{
+  "format_version": 1,
+  "version": 1,
+  "fields": {
+    "plants": {
+      "type": "string",
+      "label": "Plant and weekly target in mL",
+      "default": "Basil|400,Mint|350,Ivy|200",
+      "max_length": 150
+    }
+  }
+}
