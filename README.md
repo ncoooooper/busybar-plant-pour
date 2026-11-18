@@ -6,11 +6,9 @@ Several people can water the same plant during the week. The bar keeps the measu
 
 ## Log water for one plant
 
-1. Set your own plant names and weekly targets in milliliters, for example `Basil
-2. 400,Mint
-3. 350`. Turn the wheel to the plant you are watering.
-4. Check the next pour size on the rear. Press **Start** after measuring and adding that amount.
-5. Read what remains for the week. In the clip basil goes from 400 mL remaining to 280 mL after a 120 mL pour.
+1. Set your own plant names and weekly targets in milliliters, for example `Basil|400,Mint|350`. Turn the wheel to the plant you are watering.
+2. Check the next pour size on the rear. Press **Start** after measuring and adding that amount.
+3. Read what remains for the week. In the clip basil goes from 400 mL remaining to 280 mL after a 120 mL pour.
 
 ![Basil’s remaining volume drops from 400 mL to 280 mL.](media/guide/log-basil-pour.gif)
 
@@ -39,3 +37,9 @@ Press **Back** to exit.
 The GIFs are excerpts from the emulator recording. Each front-display pixel is shown at 9× its original width and height. The end frames pause for reading.
 
 [Full recording](media/controls.mp4) · [Rear display](screenshots/back-1.png) · [Firmware test](EMULATOR-QA.md) · [MIT license](LICENSE)
+
+## Device settings
+
+Open **Apps → Plant Pour → Setup**. Save the fields and reopen the app to use the new values.
+
+- **Plant and weekly target in mL** (`plants`). Default: `Basil|400,Mint|350,Ivy|200`.
